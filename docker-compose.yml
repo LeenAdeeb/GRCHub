@@ -1,0 +1,59 @@
+services:
+  # The application: API + web page at http://127.0.0.1:8000/ui/
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://grchub:${POSTGRES_PASSWORD:?copy .env.example to .env and fill it in}@db:5432/grchub
+      GRCHUB_JWT_SECRET: ${GRCHUB_JWT_SECRET:?copy .env.example to .env and fill it in}
+      GRCHUB_EVIDENCE_DIR: /app/storage/evidence
+      # Optional AI keys for mapping suggestions: set any of them in .env (see .env.example)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GRCHUB_LLM_PROVIDER: ${GRCHUB_LLM_PROVIDER:-}
+      GRCHUB_ANTHROPIC_MODEL: ${GRCHUB_ANTHROPIC_MODEL:-}
+      GRCHUB_OPENAI_MODEL: ${GRCHUB_OPENAI_MODEL:-}
+      GRCHUB_GEMINI_MODEL: ${GRCHUB_GEMINI_MODEL:-}
+      GRCHUB_OPENAI_BASE_URL: ${GRCHUB_OPENAI_BASE_URL:-}
+    ports:
+      - "127.0.0.1:8000:8000"     # reachable from this computer only
+    volumes:
+      - appdata:/app/storage      # originals, extracted text, uploaded evidence
+      - ./pdfs:/pdfs:ro           # put the official PDFs here
+    restart: unless-stopped
+
+  # PostgreSQL. The schema is created automatically the first time the volume is empty.
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: grchub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env and fill it in}
+      POSTGRES_DB: grchub
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grchub -d grchub"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+  # Throwaway database for the test suite. The tests DROP and recreate its schema.
+  #   docker compose --profile test up -d db_test
+  #   GRCHUB_TEST_DATABASE_URL=postgresql://postgres:test@localhost:5433/grchub_test pytest
+  db_test:
+    profiles: ["test"]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: grchub_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+
+volumes:
+  pgdata:
+  appdata:

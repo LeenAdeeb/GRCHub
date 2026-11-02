@@ -1,0 +1,41 @@
+# Registry of official regulatory sources.
+# Unknown fields are null and must be filled from the official site. Nothing here is invented.
+# identity_check: every phrase must appear on the first pages of a registered PDF, otherwise
+# registration is refused (guards against registering the wrong document).
+
+sources:
+  - id: nca-ecc-2-2024-en
+    framework: NCA ECC
+    version: "ECC-2:2024"
+    language: en
+    document_type: controls
+    parser: ecc
+    landing_page: https://nca.gov.sa/en/regulatory-documents/controls-list/ecc/
+    download_url: https://cdn.nca.gov.sa/api/files/public/upload/86e09090-44e4-481f-bc28-355673607654_ECC--2024-EN.pdf
+    publication_date: null   # not labelled on the NCA page; fill in manually
+    identity_check: ["Essential Cybersecurity Controls", "ECC – 2: 2024"]
+    status: verified         # URL found on the official NCA page on 2026-11-02
+
+  - id: nca-ecc-2-2024-implementation-guide-en
+    framework: NCA ECC
+    version: "ECC-2:2024"
+    language: en
+    document_type: guidance
+    parser: null
+    landing_page: https://nca.gov.sa/en/regulatory-documents/controls-list/ecc/
+    download_url: https://cdn.nca.gov.sa/api/files/public/upload/94c6c5f5-4d70-4afd-a440-64369aa667e2_Guide-to-Essential-Cybersecurity-Controls-%28ECC%29-Implementation-en.pdf
+    publication_date: null
+    identity_check: []
+    status: verified
+
+  - id: sama-csf-v1-en
+    framework: SAMA CSF
+    version: "1.0"
+    language: en
+    document_type: controls
+    parser: sama_csf
+    landing_page: https://rulebook.sama.gov.sa/en/cyber-security-framework-2
+    download_url: null
+    publication_date: "2017-05"   # printed on the document cover ("Version 1.0 May 2017")
+    identity_check: ["Cyber Security Framework", "Saudi Arabian Monetary Authority", "Version 1.0"]
+    status: manual           # site disallows automated access; user supplies the file
